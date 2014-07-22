@@ -1,5 +1,7 @@
 
 #require 'highline/import'
+require 'csv'
+require 'json'
 
 
 
@@ -85,10 +87,48 @@ end
 
 #renmae_zip
 #mac_unzip
-copy_slides(2,1)
-edit_text('HelloTitle','GreatTitle',2)
-edit_content_type(2)
-rid=set_document_rels(2)
-add_to_main_presentation(rid,2)
+
+def read_csv(filename)
+	advisor=[]
+	role=[]
+   CSV.foreach(filename) do |row|
+  	#puts row.inspect
+  	advisor << row[0]
+  	role << row[1]
+  end
+
+  return advisor,role
+end
+
+advisor,role=read_csv('data.csv')
+#puts advisor
+#puts role
+
+i=advisor.length-1
+
+while i > 0  do
+	copy_slides(i,1)
+	puts advisor[i]
+	puts role[i]
+	edit_text('HelloTitle',advisor[i],i)
+	edit_text('GreatTitle',role[i],i)
+
+	edit_content_type(i)
+	rid=set_document_rels(i)
+	add_to_main_presentation(rid,i)
+	i=i-1
+end
+
+
+
+
 mac_compress
+
+
+	#copy_slides(2,1)
+	#edit_text('HelloTitle','GreatTitle',2)
+	#edit_content_type(2)
+	#rid=set_document_rels(2)
+	#add_to_main_presentation(rid,2)
+	#mac_compress
 

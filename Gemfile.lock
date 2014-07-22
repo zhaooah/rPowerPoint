@@ -1,6 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    fastercsv (1.5.5)
     libxml-ruby (2.7.0)
     rubyzip (1.1.6)
     zipruby (0.3.6)
@@ -9,6 +10,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  fastercsv
   libxml-ruby (~> 2.7.0)
   rubyzip (>= 1.0.0)
   zipruby
