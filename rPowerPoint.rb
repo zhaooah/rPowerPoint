@@ -1,11 +1,16 @@
 
-require 'xml'
-require 'zip'
-require 'highline/import'
+#require 'highline/import'
 
 
 
+#The linux 'zip' command is not working on Mac OS X.
+def renmae_zip
+	exec('mv template.pptx template.zip')
+end
 
+def mac_unzip
+	exec('ditto -x -k template.zip template')
+end
 
 
 def file_write(text,filename)
@@ -23,6 +28,11 @@ def copy_slides(dest,source)
 
 	text = File.read('template/ppt/slides/slide'+source.to_s+'.xml')
 	file_write(text,'template/ppt/slides/slide'+dest.to_s+'.xml')
+
+
+	text = File.read('template/ppt/slides/_rels/slide'+source.to_s+'.xml.rels')
+	file_write(text,'template/ppt/slides/_rels/slide'+dest.to_s+'.xml.rels')
+
 	return dest
 end
 
@@ -60,10 +70,6 @@ def add_to_main_presentation(rid,slide_number)
 end
   
 
-#The linux 'zip' command is not working on Mac OS X.
-def mac_compress
-	exec('ditto -ck --rsrc --sequesterRsrc template test_output.pptx')
-end
 
 def edit_text(placeholder,replacement,slide_number)
 
@@ -72,7 +78,17 @@ def edit_text(placeholder,replacement,slide_number)
 
 end
 
+def mac_compress
+	exec('ditto -ck --rsrc --sequesterRsrc template file.pptx')
+end
 
-edit_text
+
+#renmae_zip
+#mac_unzip
+copy_slides(2,1)
+edit_text('HelloTitle','GreatTitle',2)
+edit_content_type(2)
+rid=set_document_rels(2)
+add_to_main_presentation(rid,2)
 mac_compress
 
