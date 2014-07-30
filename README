@@ -13,13 +13,3 @@ An Overview on OpenXML PowerPoint Structure
 Reference : Open XML Markup Explained
 			Chapter 3 PresentationML
   
-
-
-  presentation.xml
-  	slide1.xml
-  		slideLayout1.xml
-  			slideMaster1.xml
-  	slideMaster1.xml
-  		theme1.xml
-  		slideLayout1.xml
-  	  theme1.xml
