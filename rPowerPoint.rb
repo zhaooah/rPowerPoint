@@ -9,7 +9,7 @@ require 'csv'
 require 'json'
 
 
-module rPowerPoint
+module RPowerPoint
 	class PowerPointObject 
 
 		#Slide object corresponding to each slide in template
@@ -43,7 +43,25 @@ module rPowerPoint
 		end
 
 
+		def initialize(output_name,source_data)
+			@output_file_name=output_name
+			create_slides(output_name,source_data)
+			delete_folder(output_name)
+		end
+
 		#File utilities
+
+		def get_filename
+			return @output_file_name+'.pptx'
+		end
+
+		def delete_folder(folder_name)
+			#Linux
+			#FileUtils.rm_rf(folder_name)
+			#Mac
+			exec('rm -rf '+folder_name)
+		end
+
 		def file_write(text,filename)
 			if text!=""
 				File.open(filename, 'w') { |file| file.write(text) }
@@ -92,7 +110,7 @@ module rPowerPoint
 
 		#[Content_Types].xml
 		def edit_content_type(slide_number,output_name,init_flag)
-
+ 
 			if init_flag==false
 				content_type_xml='<Override PartName="/ppt/slides/slide'+slide_number.to_s+'.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/></Types>'
 				text = File.read(output_name+'/[Content_Types].xml').gsub('</Types>',content_type_xml)
@@ -134,22 +152,25 @@ module rPowerPoint
 				new_slidID_xml='<p:sldId id="'+(2000+slide_number).to_s + '" r:id="rId'+rid.to_s + '"/> </p:sldIdLst>'
 				text = File.read(output_name+'/ppt/presentation.xml').gsub('</p:sldIdLst>',new_slidID_xml)
 			else
-				remove_sliID_xml='<p:sldId id="'+(255+slide_number).to_s+'" r:id="rId'+(slide_number+1).to_s+'"/>'
+				slide_numberadd1=slide_number+1
+				remove_sliID_xml=/<p:sldId id="(...)" r:id="rId#{slide_numberadd1}/
+				remove_sliID_xml=remove_sliID_xml.match(File.read(output_name+'/ppt/presentation.xml')).to_s
+				remove_sliID_xml=remove_sliID_xml +'"/>'
 				text = File.read(output_name+'/ppt/presentation.xml').gsub(remove_sliID_xml,'')
 			end
 
 			file_write(text,output_name+'/ppt/presentation.xml')
 		end
-
+ 
 		#Replace placeholder with targeted text
 		def edit_text(placeholder,replacement,dest_slide_number,template_slide_number,output_name,start_flag)
 		
+
 			if start_flag == false
 				text = File.read('template/ppt/slides/slide'+template_slide_number.to_s+'.xml').gsub(placeholder,replacement)
 			else
 				text = File.read(output_name+'/ppt/slides/slide'+dest_slide_number.to_s+'.xml').gsub(placeholder,replacement)
 			end
-
 
 			file_write(text,output_name+'/ppt/slides/slide'+dest_slide_number.to_s+'.xml')
 
@@ -201,7 +222,6 @@ module rPowerPoint
 				init_flag=true
 				set_relationship(index+1,output_name,init_flag)
 				init_flag=false
-
 				if template_slide.if_no_change == true
 					copy_slides(slide_count,index+1,output_name)
 					set_relationship(slide_count,output_name,init_flag)
@@ -211,11 +231,12 @@ module rPowerPoint
 					source_data[template_slide.get_hash.first[1]].each_with_index do |src, src_index|
 						#For each data table entrey,create a new slides
 						copy_slides(slide_count,index+1,output_name)
-
+ 
 						#Mark for starting modifying each slide xml
 						start_flag=false
 						#Replace placeholder with targeted text
 						template_slide.get_hash.each do |data_pair|
+							#puts data_pair[0],source_data[data_pair[1]][src_index],slide_count,index+1
 							edit_text(data_pair[0],source_data[data_pair[1]][src_index],slide_count,index+1,output_name,start_flag)
 							start_flag=true
 						end
@@ -234,6 +255,9 @@ module rPowerPoint
 
 
 	   	end
+
+
+
 
 	end
 end
